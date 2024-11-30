@@ -9,7 +9,7 @@ const Driver = require("../../models/driver");
 const Post = require("../../models/post");
 const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
 const adminSchema = require("../../models/adminSchema");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const BecomeADriver = require("../../models/becomeADriverSchema");
 
@@ -411,10 +411,9 @@ router.get("/users", async (req, res) => {
       earnings: user.earnings,
       withdrawals: user.withdrawals,
       is_driver: user.is_driver,
-      become_a_driver: user.become_a_driver
+      become_a_driver: user.become_a_driver,
     }));
 
-    
     // Respond with the filtered and formatted data
     res.status(200).json({
       success: true,
@@ -770,6 +769,7 @@ router.delete("/posts/:postId", async (req, res) => {
 });
 
 // Create an admin
+// Create an admin
 router.post("/create-admin", async (req, res) => {
   try {
     const { firstName, lastName, phoneNumber, password, superAdmin } = req.body;
@@ -787,14 +787,11 @@ router.post("/create-admin", async (req, res) => {
         .json({ message: "Admin with this phone number already exists" });
     }
 
-    // Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newAdmin = new adminSchema({
       firstName,
       lastName,
       phoneNumber,
-      password: hashedPassword,
+      password, // Save plain password without hashing
       superAdmin: false,
     });
 
@@ -810,7 +807,6 @@ router.post("/create-admin", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 // Delete an admin
 router.delete("/delete-admin/:id", async (req, res) => {
   try {
@@ -1094,7 +1090,7 @@ router.put("/drivers/applications/:userId", async (req, res) => {
   const { userId } = req.params;
   const { status } = req.body;
 
-  console.log(userId, status)
+  console.log(userId, status);
   if (!["accepted", "rejected"].includes(status)) {
     return res
       .status(400)

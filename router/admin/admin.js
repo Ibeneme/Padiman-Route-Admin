@@ -1,8 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// const { generateOtp, sendOtp } = require("../utils/otpUtils");
 const adminSchema = require("../../models/adminSchema");
 const AdminOtp = require("../../models/AdminOtp");
 const { generateOtp, sendOtp } = require("../../utils/otpUtils");
@@ -23,12 +21,11 @@ router.post("/create", async (req, res) => {
   } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
     const admin = new adminSchema({
       firstName,
       lastName,
       phoneNumber,
-      password: hashedPassword,
+      password, // Directly store the password
       superAdmin,
     });
 
@@ -45,12 +42,8 @@ router.post("/login", async (req, res) => {
 
   try {
     const admin = await adminSchema.findOne({ phoneNumber });
-    if (!admin) {
-      return res.status(404).json({ message: "Admin not found." });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
+    if (!admin || admin.password !== password) {
+      // Directly compare passwords
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
@@ -73,12 +66,10 @@ router.post("/login", async (req, res) => {
 });
 
 // 3. Forgot Password - Send OTP
-// 3. Forgot Password - Send OTP
 router.post("/forgot-password", async (req, res) => {
   const { phoneNumber } = req.body;
 
   try {
-    // Check if an admin exists with the given phone number
     const existingAdmin = await adminSchema.findOne({ phoneNumber });
 
     if (!existingAdmin) {
@@ -87,10 +78,7 @@ router.post("/forgot-password", async (req, res) => {
         .json({ message: "Admin not found with this phone number." });
     }
 
-    // Generate OTP
     const otp = generateOtp();
-
-    // Check if an OTP already exists for this phone number
     const existingOtp = await AdminOtp.findOne({ phoneNumber });
 
     if (existingOtp) {
@@ -100,11 +88,9 @@ router.post("/forgot-password", async (req, res) => {
       await new AdminOtp({ phoneNumber, otp }).save();
     }
 
-    console.log(otp, "otp");
-    await sendOtp(phoneNumber, otp); // Sends OTP (functionality abstracted)
+    await sendOtp(phoneNumber, otp);
     res.status(200).json({ message: "OTP sent successfully." });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error sending OTP.", error });
   }
 });
@@ -118,7 +104,7 @@ router.post("/validate-otp", async (req, res) => {
     if (!adminOtp || adminOtp.otp !== otp) {
       return res.status(400).json({ message: "Invalid or expired OTP." });
     }
-    console.log(otp, "validate");
+
     res.status(200).json({ message: "OTP validated successfully." });
   } catch (error) {
     res.status(500).json({ message: "Error validating OTP.", error });
@@ -139,8 +125,8 @@ router.post("/resend-otp", async (req, res) => {
     } else {
       await new AdminOtp({ phoneNumber, otp }).save();
     }
-    console.log(otp, "otp");
-    await sendOtp(phoneNumber, otp); // Sends OTP
+
+    await sendOtp(phoneNumber, otp);
     res.status(200).json({ message: "OTP resent successfully." });
   } catch (error) {
     res.status(500).json({ message: "Error resending OTP.", error });
@@ -151,15 +137,13 @@ router.post("/resend-otp", async (req, res) => {
 router.put("/update-password", async (req, res) => {
   const { phoneNumber, newPassword } = req.body;
 
-  console.log(phoneNumber, newPassword, "phoneNumber, newPassword ");
   try {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
     const admin = await adminSchema.findOneAndUpdate(
       { phoneNumber },
-      { password: hashedPassword },
+      { password: newPassword }, // Directly store the new password
       { new: true }
     );
-    console.log(admin, "admin");
+
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
@@ -171,7 +155,5 @@ router.put("/update-password", async (req, res) => {
     res.status(500).json({ message: "Error updating password.", error });
   }
 });
-
-
 
 module.exports = router;
