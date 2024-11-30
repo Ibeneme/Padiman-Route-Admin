@@ -7,7 +7,7 @@ const userTypes = require("../../models/userTypes");
 const Chat = require("../../models/Chat");
 const router = express.Router();
 const https = require("https");
-const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
+const requestWithdrawalSchema = require("../../models/RequestWithdrawalSchema");
 
 // Helper function to generate a consistent chat ID
 function generateChatID(userId1, userId2) {
