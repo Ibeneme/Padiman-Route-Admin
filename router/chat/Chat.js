@@ -7,7 +7,7 @@ const userTypes = require("../../models/userTypes");
 const Chat = require("../../models/Chat");
 const router = express.Router();
 const https = require("https");
-const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
+const requestWithdrawals = require("../../models/requestWithdrawals");
 
 // Helper function to generate a consistent chat ID
 function generateChatID(userId1, userId2) {
@@ -714,7 +714,7 @@ router.post("/paystack/request-withdrawal", async (req, res) => {
     }
 
     console.log(withdrawalID, "withdrawalIDwithdrawalID");
-    const newWithdrawal = new requestWithdrawalSchema({
+    const newWithdrawal = new requestWithdrawals({
       userId,
       accountNumber,
       bank,
@@ -764,7 +764,7 @@ router.put("/paystack/update-withdrawal/:requestId", async (req, res) => {
 
   try {
     // Find the withdrawal request
-    const withdrawalRequest = await requestWithdrawalSchema.findById(requestId);
+    const withdrawalRequest = await requestWithdrawals.findById(requestId);
     if (!withdrawalRequest) {
       return res.status(404).json({ message: "Withdrawal request not found." });
     }

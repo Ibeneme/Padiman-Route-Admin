@@ -12,7 +12,7 @@ const adminSchema = require("../../models/adminSchema");
 // const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const BecomeADriver = require("../../models/becomeADriverSchema");
-const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
+const requestWithdrawalSchema = require("../../models/requestWithdrawals");
 
 const router = express.Router();
 
