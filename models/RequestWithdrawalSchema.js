@@ -39,7 +39,7 @@ const RequestWithdrawal = new mongoose.Schema({
   },
 });
 
-// Check if the model is already defined to avoid overwriting
+
 module.exports =
   mongoose.models.RequestWithdrawal ||
   mongoose.model("RequestWithdrawal", RequestWithdrawal);
