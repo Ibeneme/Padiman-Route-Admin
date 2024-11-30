@@ -45,6 +45,7 @@ app.use("/api/dashboard", dashboardRouter);
 //chatRouter
 //mongoose.set("debug", true);
 
+
 // Socket.IO Configuration
 const io = new Server(server, {
   cors: {
@@ -62,6 +63,7 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined room: ${chatID}`);
   });
 
+  
   // Sending a message
   socket.on(
     "sendMessage",
