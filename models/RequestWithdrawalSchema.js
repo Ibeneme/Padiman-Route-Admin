@@ -40,4 +40,4 @@ const requestWithdrawalSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("RequestWithdrawal", requestWithdrawalSchema);
+module.exports = mongoose.model("RequestWithdrawalSchema", requestWithdrawalSchema);

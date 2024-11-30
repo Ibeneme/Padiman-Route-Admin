@@ -7,11 +7,12 @@ const PassengerRequest = require("../../models/Passengers");
 const DeliverParcel = require("../../models/DeliverParcel");
 const Driver = require("../../models/driver");
 const Post = require("../../models/post");
-const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
+
 const adminSchema = require("../../models/adminSchema");
 // const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const BecomeADriver = require("../../models/becomeADriverSchema");
+const requestWithdrawalSchema = require("../../models/requestWithdrawalSchema");
 
 const router = express.Router();
 
