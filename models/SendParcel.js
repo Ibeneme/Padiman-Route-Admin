@@ -122,4 +122,6 @@ const sendParcelSchema = new mongoose.Schema(
 );
 
 // Corrected export with consistent schema name
-module.exports = mongoose.model("SendParcel", sendParcelSchema);
+// Avoid overwriting the model if it already exists
+module.exports =
+  mongoose.models.SendParcel || mongoose.model("SendParcel", sendParcelSchema);

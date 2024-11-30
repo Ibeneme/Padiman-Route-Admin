@@ -4,6 +4,7 @@ const sendParcel = require("../../models/sendParcel");
 // Adjust the path as needed
 const router = express.Router();
 
+
 // Create a new parcel
 router.post("/", async (req, res) => {
   try {
