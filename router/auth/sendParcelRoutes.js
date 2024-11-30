@@ -1,14 +1,14 @@
 const express = require("express");
+const SendParcel = require("../../models/SendParcel");
 // Correct imports
-const sendParcel = require("../../models/sendParcel");
+
 // Adjust the path as needed
 const router = express.Router();
-
 
 // Create a new parcel
 router.post("/", async (req, res) => {
   try {
-    const newParcel = new sendParcel(req.body);
+    const newParcel = new SendParcel(req.body);
     console.log(newParcel, "newParcel");
     const savedParcel = await newParcel.save();
     res.status(201).json({ success: true, data: savedParcel });
@@ -20,7 +20,7 @@ router.post("/", async (req, res) => {
 // Get all parcels
 router.get("/", async (req, res) => {
   try {
-    const parcels = await sendParcel.find();
+    const parcels = await SendParcel.find();
     res.status(200).json({ success: true, data: parcels });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
 // Get a parcel by ID
 router.get("/:id", async (req, res) => {
   try {
-    const parcel = await sendParcel.findById(req.params.id);
+    const parcel = await SendParcel.findById(req.params.id);
     if (!parcel) {
       return res
         .status(404)
@@ -45,7 +45,7 @@ router.get("/:id", async (req, res) => {
 // Get parcels by user ID
 router.get("/user/:userId", async (req, res) => {
   try {
-    const parcels = await sendParcel.find({ userId: req.params.userId });
+    const parcels = await SendParcel.find({ userId: req.params.userId });
     if (!parcels || parcels.length === 0) {
       return res
         .status(404)
@@ -59,7 +59,7 @@ router.get("/user/:userId", async (req, res) => {
 // Update a parcel by ID
 router.put("/:id", async (req, res) => {
   try {
-    const updatedParcel = await sendParcel.findByIdAndUpdate(
+    const updatedParcel = await SendParcel.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
@@ -78,7 +78,7 @@ router.put("/:id", async (req, res) => {
 // Delete a parcel by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedParcel = await sendParcel.findByIdAndDelete(req.params.id);
+    const deletedParcel = await SendParcel.findByIdAndDelete(req.params.id);
     if (!deletedParcel) {
       return res
         .status(404)

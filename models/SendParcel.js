@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const sendParcelSchema = new mongoose.Schema(
+const sendParcel = new mongoose.Schema(
   {
     state: {
       type: String,
@@ -121,7 +121,4 @@ const sendParcelSchema = new mongoose.Schema(
   }
 );
 
-// Corrected export with consistent schema name
-// Avoid overwriting the model if it already exists
-module.exports =
-  mongoose.models.SendParcel || mongoose.model("SendParcel", sendParcelSchema);
+module.exports = mongoose.model("SendParcel", sendParcel);
