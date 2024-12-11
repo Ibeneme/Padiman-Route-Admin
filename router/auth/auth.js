@@ -5,14 +5,26 @@ const router = express.Router();
 const userTypes = require("../../models/userTypes");
 const bcrypt = require("bcrypt"); // Import bcrypt for hashing
 const { default: mongoose } = require("mongoose");
+const sendSMS = require('../../utils/sendSMS')
 
 const JWT_SECRET = "your_jwt_secret";
 const JWT_REFRESH_SECRET = "your_refresh_secret";
-const OTP_EXPIRATION = 300000; // 5 minutes in milliseconds
+const OTP_EXPIRATION = 1800000; // 5 minutes in milliseconds
 
-const sendOTP = (phone_number, otp) => {
+const sendOTP = async (phone_number, otp) => {
   console.log(`Sending OTP ${otp} to ${phone_number}`);
+  try {
+    // Send OTP via SMS
+    const response = await sendSMS({
+      message: `Your OTP code is ${otp}`,
+      phoneNumber: phone_number
+    });
+    console.log("OTP sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+  }
 };
+
 
 // Register user
 router.post("/register", async (req, res) => {

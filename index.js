@@ -126,7 +126,7 @@ io.on("connection", (socket) => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
-
+console.log(`Userns connected`);
 // Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

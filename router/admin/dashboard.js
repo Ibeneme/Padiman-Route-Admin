@@ -385,6 +385,70 @@ router.get("/admins", async (req, res) => {
   }
 });
 
+router.get("/fetch/admins/admin/:id", async (req, res) => {
+  try {
+    // Extract the adminId from the route parameter
+    const adminId = req.params.id;
+
+    console.log(adminId, "adminIdadminId");
+    // Find the admin in the database by adminId
+    const admin = await adminSchema.findById(adminId);
+
+    // Check if the admin was found
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    // Return the admin data (without password field)
+    res.status(200).json({
+      _id: admin._id,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      phoneNumber: admin.phoneNumber,
+      superAdmin: admin.superAdmin,
+      rights: admin.rights,
+      hasFullAccess: admin.hasFullAccess,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/update-rights/admin/:adminId", async (req, res) => {
+  const { adminId } = req.params;
+  const { rights } = req.body; // Expecting rights as an object in the request body
+
+  console.log("rightsrightsrights", adminId, rights);
+  try {
+    // Find the admin by ID
+    const admin = await adminSchema.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    // Update the admin's rights if they're not a superAdmin
+    if (!admin.superAdmin) {
+      admin.rights = { ...admin.rights, ...rights }; // Merge existing rights with the new ones
+      await admin.save();
+      return res
+        .status(200)
+        .json({
+          message: "Admin rights updated successfully",
+          admin,
+          success: true,
+        });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Cannot update rights of a superAdmin" });
+    }
+  } catch (error) {
+    console.error("Error updating admin rights:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Route to get user data
 router.get("/users", async (req, res) => {
   try {

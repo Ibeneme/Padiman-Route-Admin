@@ -39,6 +39,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
+
 // 2. Login and Generate Access Token
 router.post("/login", async (req, res) => {
   const { phoneNumber, password } = req.body;
@@ -171,7 +172,5 @@ router.put("/update-password", async (req, res) => {
     res.status(500).json({ message: "Error updating password.", error });
   }
 });
-
-
 
 module.exports = router;
