@@ -1,8 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-// const { generateOtp, sendOtp } = require("../utils/otpUtils");
 const adminSchema = require("../../models/adminSchema");
 const AdminOtp = require("../../models/AdminOtp");
 const { generateOtp, sendOtp } = require("../../utils/otpUtils");
@@ -10,9 +8,11 @@ const { generateOtp, sendOtp } = require("../../utils/otpUtils");
 const router = express.Router();
 
 // Environment variables
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const JWT_SECRET = "supersecretkey";
+const SALT_ROUNDS = 10;
 
-// 1. Create an Admin Account
+// 1. Create Admin Account
+// 1. Create Admin Account
 router.post("/create", async (req, res) => {
   const {
     firstName,
@@ -23,7 +23,16 @@ router.post("/create", async (req, res) => {
   } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Validate input
+    if (!firstName || !lastName || !phoneNumber || !password) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    console.log("Hashed password: ", hashedPassword); // Log the hashed password
+
+    // Create new admin
     const admin = new adminSchema({
       firstName,
       lastName,
@@ -33,65 +42,84 @@ router.post("/create", async (req, res) => {
     });
 
     await admin.save();
+    console.log("Admin saved:", admin); // Log the saved admin object
     res.status(201).json({ message: "Admin account created successfully." });
   } catch (error) {
     res.status(500).json({ message: "Error creating admin account.", error });
   }
 });
 
-
 // 2. Login and Generate Access Token
 router.post("/login", async (req, res) => {
   const { phoneNumber, password } = req.body;
 
   try {
+    // Validate inputs
+    if (!phoneNumber || !password) {
+      return res
+        .status(400)
+        .json({ message: "Phone number and password are required." });
+    }
+
+    // Find admin by phone number
     const admin = await adminSchema.findOne({ phoneNumber });
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
 
+    // Compare the hashed password
     const isPasswordValid = await bcrypt.compare(password, admin.password);
+    console.log("Password comparison result:", isPasswordValid); // Log the comparison result
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
+    // Generate a token
+    const { firstName = "Unknown", lastName = "Unknown" } = admin;
     const token = jwt.sign(
       {
         id: admin._id,
         superAdmin: admin.superAdmin,
         phoneNumber: admin.phoneNumber,
-        firstName: admin.firstName,
-        lastName: admin.lastName,
+        firstName,
+        lastName,
       },
       JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({ token: token, user: admin });
+    // Respond with token and user data
+    res.status(200).json({
+      token,
+      user: {
+        id: admin._id,
+        phoneNumber: admin.phoneNumber,
+        firstName,
+        lastName,
+        superAdmin: admin.superAdmin,
+      },
+    });
   } catch (error) {
+    console.log("Login error:", error); // Log any error that happens
     res.status(500).json({ message: "Error during login.", error });
   }
 });
 
-// 3. Forgot Password - Send OTP
+
+
 // 3. Forgot Password - Send OTP
 router.post("/forgot-password", async (req, res) => {
   const { phoneNumber } = req.body;
 
   try {
-    // Check if an admin exists with the given phone number
     const existingAdmin = await adminSchema.findOne({ phoneNumber });
-
     if (!existingAdmin) {
       return res
         .status(404)
         .json({ message: "Admin not found with this phone number." });
     }
 
-    // Generate OTP
     const otp = generateOtp();
-
-    // Check if an OTP already exists for this phone number
     const existingOtp = await AdminOtp.findOne({ phoneNumber });
 
     if (existingOtp) {
@@ -101,11 +129,9 @@ router.post("/forgot-password", async (req, res) => {
       await new AdminOtp({ phoneNumber, otp }).save();
     }
 
-    console.log(otp, "otp");
-    await sendOtp(phoneNumber, otp); // Sends OTP (functionality abstracted)
+    await sendOtp(phoneNumber, otp);
     res.status(200).json({ message: "OTP sent successfully." });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error sending OTP.", error });
   }
 });
@@ -119,7 +145,7 @@ router.post("/validate-otp", async (req, res) => {
     if (!adminOtp || adminOtp.otp !== otp) {
       return res.status(400).json({ message: "Invalid or expired OTP." });
     }
-    console.log(otp, "validate");
+
     res.status(200).json({ message: "OTP validated successfully." });
   } catch (error) {
     res.status(500).json({ message: "Error validating OTP.", error });
@@ -140,8 +166,8 @@ router.post("/resend-otp", async (req, res) => {
     } else {
       await new AdminOtp({ phoneNumber, otp }).save();
     }
-    console.log(otp, "otp");
-    await sendOtp(phoneNumber, otp); // Sends OTP
+
+    await sendOtp(phoneNumber, otp);
     res.status(200).json({ message: "OTP resent successfully." });
   } catch (error) {
     res.status(500).json({ message: "Error resending OTP.", error });
@@ -152,15 +178,20 @@ router.post("/resend-otp", async (req, res) => {
 router.put("/update-password", async (req, res) => {
   const { phoneNumber, newPassword } = req.body;
 
-  console.log(phoneNumber, newPassword, "phoneNumber, newPassword ");
   try {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    if (!phoneNumber || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Phone number and new password are required." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
     const admin = await adminSchema.findOneAndUpdate(
       { phoneNumber },
       { password: hashedPassword },
       { new: true }
     );
-    console.log(admin, "admin");
+
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
