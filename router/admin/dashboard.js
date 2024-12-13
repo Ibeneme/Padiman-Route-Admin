@@ -113,7 +113,7 @@ router.get("/dashboard-summary", async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error fetching dashboard summary:", error);
+    //console.log("Error fetching dashboard summary:", error);
     res.status(500).json({ error: "Failed to fetch dashboard summary." });
   }
 });
@@ -380,7 +380,7 @@ router.get("/admins", async (req, res) => {
     // Return the list of admins
     res.status(200).json({ admins, success: true });
   } catch (error) {
-    console.error("Error fetching admins:", error);
+    //console.error("Error fetching admins:", error);
     res.status(500).json({ message: "Error fetching admins" });
   }
 });
@@ -390,7 +390,7 @@ router.get("/fetch/admins/admin/:id", async (req, res) => {
     // Extract the adminId from the route parameter
     const adminId = req.params.id;
 
-    console.log(adminId, "adminIdadminId");
+    //console.log(adminId, "adminIdadminId");
     // Find the admin in the database by adminId
     const admin = await adminSchema.findById(adminId);
 
@@ -410,7 +410,7 @@ router.get("/fetch/admins/admin/:id", async (req, res) => {
       hasFullAccess: admin.hasFullAccess,
     });
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -419,7 +419,7 @@ router.put("/update-rights/admin/:adminId", async (req, res) => {
   const { adminId } = req.params;
   const { rights } = req.body; // Expecting rights as an object in the request body
 
-  console.log("rightsrightsrights", adminId, rights);
+  //console.log("rightsrightsrights", adminId, rights);
   try {
     // Find the admin by ID
     const admin = await adminSchema.findById(adminId);
@@ -444,7 +444,7 @@ router.put("/update-rights/admin/:adminId", async (req, res) => {
         .json({ message: "Cannot update rights of a superAdmin" });
     }
   } catch (error) {
-    console.error("Error updating admin rights:", error);
+    //console.error("Error updating admin rights:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -514,7 +514,7 @@ setInterval(deleteUsersAfter7Days, 24 * 60 * 60 * 1000); // Check every day
 // Route to update the `delete` and `blocked` flags for users
 router.post("/users/update-status", async (req, res) => {
   const { userIds, deleteFlag, blockFlag } = req.body; // userIds: Array of user objects or IDs, deleteFlag: boolean, blockFlag: boolean
-  console.log(userIds, deleteFlag, blockFlag, "userIds");
+  //console.log(userIds, deleteFlag, blockFlag, "userIds");
 
   if (!Array.isArray(userIds) || userIds.length === 0) {
     return res.status(400).json({
@@ -566,7 +566,7 @@ router.post("/users/update-status", async (req, res) => {
       modifiedCount: result.modifiedCount,
     });
   } catch (error) {
-    console.error("Error updating user status:", error);
+    //console.error("Error updating user status:", error);
     res.status(500).json({
       success: false,
       message: "Error updating user status.",
@@ -579,7 +579,7 @@ router.post("/users/update-status", async (req, res) => {
 router.post("/deliverparcels/delete", async (req, res) => {
   const { ids } = req.body; // Array of IDs to be deleted
 
-  console.log(ids, "ids");
+  //console.log(ids, "ids");
 
   if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).json({
@@ -617,7 +617,7 @@ router.post("/deliverparcels/delete", async (req, res) => {
 // Route to delete SendParcel items by ID array
 router.post("/sendparcels/delete", async (req, res) => {
   const { ids } = req.body;
-  console.log(ids, "ids");
+  //console.log(ids, "ids");
   if (!Array.isArray(ids) || ids.length === 0) {
     return res
       .status(400)
@@ -683,7 +683,7 @@ router.post("/drivers/delete", async (req, res) => {
 // Route to delete PassengerRequest items by ID array
 router.post("/passengerrequests/delete", async (req, res) => {
   const { ids } = req.body;
-  console.log(ids, "ids");
+  //console.log(ids, "ids");
 
   if (!Array.isArray(ids) || ids.length === 0) {
     return res
@@ -785,7 +785,7 @@ router.delete("/admins", async (req, res) => {
       .status(200)
       .json({ message: `${result.deletedCount} admins deleted successfully.` });
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     res.status(500).json({ message: "Error deleting admins." });
   }
 });
@@ -807,7 +807,7 @@ router.post("/posts", async (req, res) => {
     const savedPost = await newPost.save();
     res.status(201).json({ success: true, post: savedPost });
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     res.status(500).json({ message: "Failed to create post" });
   }
 });
@@ -828,7 +828,7 @@ router.delete("/posts/:postId", async (req, res) => {
       .status(200)
       .json({ success: true, message: "Post deleted successfully" });
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     res.status(500).json({ message: "Failed to delete post" });
   }
 });
@@ -868,7 +868,7 @@ router.post("/create-admin", async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error(err);
+    //console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -894,7 +894,7 @@ router.delete("/delete-admin/:id", async (req, res) => {
       .status(200)
       .json({ message: "Admin deleted successfully", success: true });
   } catch (err) {
-    console.error(err);
+    //console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -902,7 +902,7 @@ router.delete("/delete-admin/:id", async (req, res) => {
 router.put("/update-withdrawal", async (req, res) => {
   const { status, withdrawalID, _id } = req.body; // "accepted" or "rejected"
   const userId = _id;
-  console.log(status, withdrawalID, userId, "status, withdrawalID, userId");
+  //console.log(status, withdrawalID, userId, "status, withdrawalID, userId");
 
   try {
     // Step 1: Fetch the withdrawal request by withdrawalID
@@ -912,7 +912,7 @@ router.put("/update-withdrawal", async (req, res) => {
     if (!withdrawalRequest) {
       return res.status(404).json({ message: "Withdrawal request not found" });
     }
-    console.log(withdrawalRequest, "withdrawalRequest");
+    //console.log(withdrawalRequest, "withdrawalRequest");
 
     // Step 2: Fetch the user associated with the withdrawal request
     const user = await userTypes.findById(userId);
@@ -976,7 +976,7 @@ router.put("/update-withdrawal", async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
@@ -1026,7 +1026,7 @@ router.get("/withdrawals-accepted", async (req, res) => {
       data: acceptedWithdrawals,
     });
   } catch (error) {
-    console.error("Error fetching accepted withdrawals:", error);
+    //console.error("Error fetching accepted withdrawals:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -1074,7 +1074,7 @@ router.get("/withdrawals-rejected", async (req, res) => {
       data: acceptedWithdrawals,
     });
   } catch (error) {
-    console.error("Error fetching accepted withdrawals:", error);
+    //console.error("Error fetching accepted withdrawals:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -1136,7 +1136,7 @@ router.get("/withdrawals-ref", async (req, res) => {
       referralEarnings,
     });
   } catch (error) {
-    console.error("Error fetching accepted withdrawals:", error);
+    //console.error("Error fetching accepted withdrawals:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -1155,7 +1155,7 @@ router.put("/drivers/applications/:userId", async (req, res) => {
   const { userId } = req.params;
   const { status } = req.body;
 
-  console.log(userId, status);
+  //console.log(userId, status);
   if (!["accepted", "rejected"].includes(status)) {
     return res
       .status(400)

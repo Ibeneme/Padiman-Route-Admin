@@ -18,9 +18,11 @@ router.post("/create", async (req, res) => {
     firstName,
     lastName,
     phoneNumber,
-    password,
+    password, // Get raw password from request body
     superAdmin = false,
   } = req.body;
+
+  console.log("Hashed password: ", password); // Log the hashed password
 
   try {
     // Validate input
@@ -28,8 +30,17 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // Trim the password
+    const trimPassword = password.trim();
+    console.log("Hashed password: ", trimPassword); // Log the hashed password
+
+    // Validate trimmed password
+    if (!trimPassword) {
+      return res.status(400).json({ message: "Password cannot be empty." });
+    }
+
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(trimPassword, SALT_ROUNDS);
     console.log("Hashed password: ", hashedPassword); // Log the hashed password
 
     // Create new admin
@@ -43,15 +54,23 @@ router.post("/create", async (req, res) => {
 
     await admin.save();
     console.log("Admin saved:", admin); // Log the saved admin object
-    res.status(201).json({ message: "Admin account created successfully." });
+    res
+      .status(201)
+      .json({
+        message: "Admin created successfully",
+        admin: admin,
+        success: true,
+      });
   } catch (error) {
+    console.error("Error creating admin account:", error); // Log the error
     res.status(500).json({ message: "Error creating admin account.", error });
   }
 });
-
 // 2. Login and Generate Access Token
 router.post("/login", async (req, res) => {
   const { phoneNumber, password } = req.body;
+
+  console.log("Hashed password: ", password); // Log the hashed password
 
   try {
     // Validate inputs
@@ -66,6 +85,8 @@ router.post("/login", async (req, res) => {
     if (!admin) {
       return res.status(404).json({ message: "Admin not found." });
     }
+
+    console.log("Hashed password: ", admin); // Log the hashed password
 
     // Compare the hashed password
     const isPasswordValid = await bcrypt.compare(password, admin.password);
@@ -104,8 +125,6 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Error during login.", error });
   }
 });
-
-
 
 // 3. Forgot Password - Send OTP
 router.post("/forgot-password", async (req, res) => {
