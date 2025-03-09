@@ -5,7 +5,7 @@ const router = express.Router();
 const userTypes = require("../../models/userTypes");
 const bcrypt = require("bcrypt"); // Import bcrypt for hashing
 const { default: mongoose } = require("mongoose");
-const sendSMS = require('../../utils/sendSMS')
+const sendSMS = require("../../utils/sendSMS");
 
 const JWT_SECRET = "your_jwt_secret";
 const JWT_REFRESH_SECRET = "your_refresh_secret";
@@ -17,14 +17,13 @@ const sendOTP = async (phone_number, otp) => {
     // Send OTP via SMS
     const response = await sendSMS({
       message: `Your OTP code is ${otp}`,
-      phoneNumber: phone_number
+      phoneNumber: phone_number,
     });
     console.log("OTP sent successfully:", response);
   } catch (error) {
     console.error("Error sending OTP:", error);
   }
 };
-
 
 // Register user
 router.post("/register", async (req, res) => {
@@ -98,12 +97,10 @@ router.post("/verify-otp", async (req, res) => {
     user.is_verified = true;
     await user.save();
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "OTP verified and user verified successfully.",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified and user verified successfully.",
+    });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
@@ -112,6 +109,8 @@ router.post("/verify-otp", async (req, res) => {
 // Resend OTP
 router.post("/resend-otp", async (req, res) => {
   const { phone_number } = req.body;
+
+  console.log(phone_number, "phone_number, password");
 
   try {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -123,6 +122,7 @@ router.post("/resend-otp", async (req, res) => {
     );
 
     sendOTP(phone_number, otp);
+    console.log(otp);
 
     return res
       .status(200)
@@ -135,6 +135,7 @@ router.post("/resend-otp", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   const { phone_number, password } = req.body;
+  console.log(phone_number, password, "refreshToken");
 
   try {
     const user = await userTypes.findOne({ phone_number });
@@ -157,6 +158,7 @@ router.post("/login", async (req, res) => {
     const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_SECRET, {
       expiresIn: "7d",
     });
+    console.log(accessToken, refreshToken, "refreshToken");
 
     return res.status(200).json({
       success: true,
@@ -203,12 +205,10 @@ router.post("/confirm-change-password", async (req, res) => {
 
   try {
     if (!phone_number || !new_password) {
-      return res
-        .status(400)
-        .json({
-          error: true,
-          message: "Phone number and new password are required.",
-        });
+      return res.status(400).json({
+        error: true,
+        message: "Phone number and new password are required.",
+      });
     }
 
     const user = await userTypes.findOne({ phone_number });
