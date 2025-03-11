@@ -1,11 +1,11 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const PassengerRequest = require('../../models/Passengers');
+const express = require("express");
+const mongoose = require("mongoose");
+const PassengerRequest = require("../../models/Passengers");
 
 const router = express.Router();
 
 // Create a new passenger request
-router.post('/create', async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
     const newRequest = new PassengerRequest({
       destination: req.body.destination,
@@ -22,6 +22,9 @@ router.post('/create', async (req, res) => {
       driver_first_name: req.body.driver_first_name,
       driver_last_name: req.body.driver_last_name,
       driver_phone_number: req.body.driver_phone_number,
+      location_name: req.body.location_name,
+      location_lat: req.body.location_lat,
+      location_lng: req.body.location_lng,
     });
 
     await newRequest.save();
@@ -32,7 +35,7 @@ router.post('/create', async (req, res) => {
 });
 
 // Get all passenger requests
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const requests = await PassengerRequest.find();
     res.status(200).json(requests);
@@ -41,8 +44,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get all passenger requests by userId
-router.get('/user/:userId', async (req, res) => {
+
+router.get("/user/:userId", async (req, res) => {
   try {
     const requests = await PassengerRequest.find({ userId: req.params.userId });
     res.status(200).json(requests);
@@ -52,11 +55,11 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // Get a single passenger request by id
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const request = await PassengerRequest.findById(req.params.id);
     if (!request) {
-      return res.status(404).json({ message: 'Request not found' });
+      return res.status(404).json({ message: "Request not found" });
     }
     res.status(200).json(request);
   } catch (error) {
@@ -82,7 +85,7 @@ router.get('/:id', async (req, res) => {
 //   }
 
 // Update a passenger request by id
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const updatedRequest = await PassengerRequest.findByIdAndUpdate(
       req.params.id,
@@ -106,7 +109,7 @@ router.put('/:id', async (req, res) => {
     );
 
     if (!updatedRequest) {
-      return res.status(404).json({ message: 'Request not found' });
+      return res.status(404).json({ message: "Request not found" });
     }
 
     res.status(200).json(updatedRequest);
@@ -116,13 +119,15 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a passenger request by id
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const deletedRequest = await PassengerRequest.findByIdAndDelete(req.params.id);
+    const deletedRequest = await PassengerRequest.findByIdAndDelete(
+      req.params.id
+    );
     if (!deletedRequest) {
-      return res.status(404).json({ message: 'Request not found' });
+      return res.status(404).json({ message: "Request not found" });
     }
-    res.status(200).json({ message: 'Request deleted successfully' });
+    res.status(200).json({ message: "Request deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -98,6 +98,7 @@ router.get("/get/:id", async (req, res) => {
 // 6. Get all drivers by userId
 router.get("/getByUserId/:userId", async (req, res) => {
   try {
+    console.log("jjj");
     const drivers = await Driver.find({ userId: req.params.userId });
     if (!drivers || drivers.length === 0) {
       return res.status(404).json({ success: false, error: "No drivers found for this user" });

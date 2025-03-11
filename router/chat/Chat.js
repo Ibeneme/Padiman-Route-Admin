@@ -119,48 +119,7 @@ router.get("/chat/:chatId", async (req, res) => {
   }
 });
 
-// Route to create or get a chat between two users
-// router.post("/createChat", async (req, res) => {
-//   const { users } = req.body;
-//   const userId1 = users?.userId1;
-//   const userId2 = users?.userId2;
-//   console.log(userId1, userId2, users, "userId1, userId2F");
-//   if (!userId1 || !userId2) {
-//     return res
-//       .status(400)
-//       .json({ error: "Both userId1 and userId2 are required" });
-//   }
 
-//   if (userId1 === userId2) {
-//     return res.status(400).json({ error: "userTypes IDs must be different" });
-//   }
-
-//   try {
-//     const chatID = generateChatID(userId1, userId2);
-
-//     // Check if the chat already exists
-//     let chat = await Chat.findOne({ chatID });
-
-//     if (chat) {
-//       // Chat exists, return the existing chat ID
-//       return res.status(200).json({ chatID });
-//     }
-
-//     // Chat does not exist, create a new chat
-//     chat = new Chat({
-//       users: [userId1, userId2],
-//       chatID,
-//     });
-
-//     await chat.save();
-
-//     // Return the new chat ID
-//     return res.status(201).json({ chatID });
-//   } catch (error) {
-//     console.error("Error creating chat:", error);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
 
 router.get("/chats/:userId", async (req, res) => {
   const { userId } = req.params;

@@ -13,6 +13,19 @@ const passengerRequestSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  location_name: {
+    type: String,
+    default: null,
+  },
+  location_lat: {
+    type: String,
+    default: null,
+  },
+  location_lng: {
+    type: String,
+    default: null,
+  },
+  
   userId: {
     type: String,
     required: true, // This field is required

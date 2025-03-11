@@ -45,6 +45,44 @@ router.post("/users/:email", async (req, res) => {
   }
 });
 
+// Middleware to verify JWT token
+const authenticateToken = (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1]; // Extract token from Authorization header
+
+  if (!token) {
+    return res.status(403).json({ error: true, message: "Token is required." });
+  }
+
+  // Verify the token
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: true, message: "Invalid token." });
+    }
+    req.user = user; // Attach the user to the request object
+    next(); // Proceed to the next middleware or route handler
+  });
+};
+
+
+router.post("/users/token", authenticateToken, async (req, res) => {
+  try {
+    // Extract the user ID from the token
+    const { userId } = req;
+
+    // Find the user by their ID
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Respond with the user details
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.put("/put/:userId/", async (req, res) => {
   const userId = req.params.userId;
 
@@ -62,7 +100,9 @@ router.put("/put/:userId/", async (req, res) => {
     // Save the updated user
     await user.save();
 
-    return res.status(200).json({ message: "User seen status updated successfully" });
+    return res
+      .status(200)
+      .json({ message: "User seen status updated successfully" });
   } catch (error) {
     console.error("Error updating user seen status:", error);
     return res.status(500).json({ message: "Internal server error" });

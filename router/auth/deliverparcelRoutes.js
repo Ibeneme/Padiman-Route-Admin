@@ -31,6 +31,9 @@ router.post("/deliverparcels", async (req, res) => {
     user_first_name,
     user_last_name,
     users_phone_number,
+    location_name,
+    location_lat,
+    location_lng,
   } = req.body;
   console.log(
     destination,
@@ -67,11 +70,18 @@ router.post("/deliverparcels", async (req, res) => {
       user_first_name,
       user_last_name,
       users_phone_number,
+      location_name,
+      location_lat,
+      location_lng,
     });
 
     const savedParcel = await newParcel.save();
     console.log(savedParcel, "savedParcel");
-    res.status(201).json({ message: "Parcel added successfully", savedParcel });
+    res.status(201).json({
+      message: "Parcel added successfully",
+      savedParcel,
+      success: true,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error adding parcel", error });
@@ -110,13 +120,11 @@ router.get("/deliverparcels-all", async (req, res) => {
     res.status(200).json({ success: true, data: parcels });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error fetching parcels",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching parcels",
+      error: error.message,
+    });
   }
 });
 
@@ -137,10 +145,6 @@ router.get("/deliverparcels/user/:userId", async (req, res) => {
     res.status(500).json({ message: "Error fetching user parcels", error });
   }
 });
-
-
-
-
 
 // 5. DELETE route to delete a deliver parcel by ID
 router.delete("/deliverparcels/:id", async (req, res) => {

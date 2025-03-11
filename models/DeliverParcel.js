@@ -4,6 +4,19 @@ const Schema = mongoose.Schema;
 // Define the DeliverParcel schema
 const deliverParcelSchema = new Schema(
   {
+    location_name: {
+      type: String,
+      default: null,
+    },
+    location_lat: {
+      type: String,
+      default: null,
+    },
+    location_lng: {
+      type: String,
+      default: null,
+    },
+    
     destination: {
       type: String,
       required: false,

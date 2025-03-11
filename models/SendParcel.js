@@ -95,6 +95,19 @@ const sendParcel = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    location_name: {
+      type: String,
+      default: null,
+    },
+    location_lat: {
+      type: String,
+      default: null,
+    },
+    location_lng: {
+      type: String,
+      default: null,
+    },
+
     driver: {
       type: String,
       default: null,

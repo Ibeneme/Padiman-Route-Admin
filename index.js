@@ -16,7 +16,7 @@ const Driver = require("./models/driver");
 const PassengerRequest = require("./models/Passengers");
 const adminRouter = require("./router/admin/admin");
 const dashboardRouter = require("./router/admin/dashboard");
-
+const DriversMessage = require("./models/DriversMessage");
 
 // MongoDB connection
 mongoose
@@ -60,6 +60,72 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", (chatID) => {
     socket.join(chatID);
     console.log(`User ${socket.id} joined room: ${chatID}`);
+  });
+
+  socket.on("join_group_ride_message", async (groupId) => {
+    console.log(`User ${groupId} joined group: ${groupId}`);
+    socket.join(groupId);
+
+    try {
+      // Check if group exists in the database
+      const group = await DriversMessage.findOne({ groupId: groupId });
+
+      if (!group) {
+        // If the group doesn't exist, create a new one
+        const newGroup = new DriversMessage({
+          groupId: groupId,
+          messages: [],
+        });
+        await newGroup.save();
+        console.log(`New group created with ID: ${groupId}`);
+      }
+    } catch (err) {
+      console.error("Error checking group in DB:", err);
+    }
+  });
+
+  // Handling incoming messages and saving them to the database
+  socket.on("send_message_ride_message", async (data) => {
+    console.log("Received data:", data); // Debug the incoming data
+
+    const { groupId, message, sender, uuid } = data;
+
+    console.log(groupId, message, sender, uuid, "communication"); // Log the extracted values
+
+    try {
+      // Find the group in the database
+      const group = await DriversMessage.findOne({ groupId: groupId });
+
+      if (group) {
+        // Add the new message to the group's message list
+        group.messages.push({
+          message: message,
+          sender: sender,
+          status: "delivered",
+          timestamp: new Date(),
+          uuid: uuid, // Save the UUID along with the message
+        });
+
+        // Save the updated group document
+        await group.save();
+        console.log(`Message from ${sender} saved to group ${groupId}`);
+
+        // Emit the message to all users in the group
+        io.to(groupId).emit("receive_message_ride_message", {
+          sender: sender,
+          message: message,
+          uuid: uuid, // Emit the UUID back to the group
+          timestamp: new Date().toISOString(),
+          status: "delivered", // Use ISO format for consistency
+        });
+      } else {
+        console.log(
+          `Group with ID ${groupId} not found in DB, unable to save message.`
+        );
+      }
+    } catch (err) {
+      console.error("Error saving message to DB:", err);
+    }
   });
 
   // Sending a message
