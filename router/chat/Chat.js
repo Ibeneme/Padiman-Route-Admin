@@ -596,10 +596,11 @@ router.get("/paystack/banks", (req, res) => {
   paystackReq.end();
 });
 
-router.get("/paystack/resolve-account", (req, res) => {
-  const { account_number, bank_code } = req.query;
-  console.log(account_number, bank_code);
-  // Validate query parameters
+router.post("/paystack/resolve-account", (req, res) => {
+  const { account_number, bank_code } = req.body;
+  console.log(account_number, bank_code, req.body);
+
+  // Validate request body
   if (!account_number || !bank_code) {
     return res.status(400).json({
       message: "Both account_number and bank_code are required",
@@ -611,7 +612,7 @@ router.get("/paystack/resolve-account", (req, res) => {
     hostname: "api.paystack.co",
     port: 443,
     path: `/bank/resolve?account_number=${account_number}&bank_code=${bank_code}`,
-    method: "GET",
+    method: "GET", // Paystack API expects GET, but we'll pass the data in the body
     headers: {
       Authorization: "Bearer sk_live_9ec11323a265fcc1330376e58d839139ebb0cd16", // Replace with your Paystack secret key
     },
@@ -649,6 +650,7 @@ router.get("/paystack/resolve-account", (req, res) => {
   // End the request
   request.end();
 });
+
 
 router.post("/paystack/request-withdrawal", async (req, res) => {
   const {
@@ -707,7 +709,7 @@ router.post("/paystack/request-withdrawal", async (req, res) => {
 
       res
         .status(201)
-        .json({ message: "Withdrawal request submitted successfully." });
+        .json({ message: "Withdrawal request submitted successfully." , success: true});
     } else {
       res.status(404).json({ message: "User not found." });
     }

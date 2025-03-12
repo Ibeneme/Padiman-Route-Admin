@@ -12,7 +12,7 @@ const axios = require("axios");
 const JWT_SECRET = "your_jwt_secret";
 const JWT_REFRESH_SECRET = "your_refresh_secret";
 const OTP_EXPIRATION = 1800000; // 5 minutes in milliseconds
-const PAYSTACK_SECRET_KEY = "sk_test_36fa1899b7cc4af2f3b86f3544c4ab99e9a80ea4";
+const PAYSTACK_SECRET_KEY = "sk_live_9ec11323a265fcc1330376e58d839139ebb0cd16";
 
 const sendOTP = async (phone_number, otp) => {
   //console.log(`Sending OTP ${otp} to ${phone_number}`);
