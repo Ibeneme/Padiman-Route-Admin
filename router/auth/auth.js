@@ -12,20 +12,20 @@ const axios = require("axios");
 const JWT_SECRET = "your_jwt_secret";
 const JWT_REFRESH_SECRET = "your_refresh_secret";
 const OTP_EXPIRATION = 1800000; // 5 minutes in milliseconds
-const PAYSTACK_SECRET_KEY = "sk_live_9ec11323a265fcc1330376e58d839139ebb0cd16";
+const PAYSTACK_SECRET_KEY = "sk_test_36fa1899b7cc4af2f3b86f3544c4ab99e9a80ea4";
 
 const sendOTP = async (phone_number, otp) => {
-  //console.log(`Sending OTP ${otp} to ${phone_number}`);
-  try {
-    // Send OTP via SMS
-    const response = await sendSMS({
-      message: `Your OTP code is ${otp}`,
-      phoneNumber: phone_number,
-    });
-    console.log("OTP sent successfully:", response);
-  } catch (error) {
-    console.error("Error sending OTP:", error);
-  }
+  // //console.log(`Sending OTP ${otp} to ${phone_number}`);
+  // try {
+  //   // Send OTP via SMS
+  //   // const response = await sendSMS({
+  //   //   message: `Your OTP code is ${otp}`,
+  //   //   phoneNumber: phone_number,
+  //   // });
+  //   console.log("OTP sent successfully:", response);
+  // } catch (error) {
+  //   console.error("Error sending OTP:", error);
+  // }
 };
 
 // Register user
@@ -69,7 +69,7 @@ router.post("/register", async (req, res) => {
     const otpEntry = new OTP({ phone_number, otp });
     await otpEntry.save();
 
-    sendOTP(phone_number, otp);
+    //sendOTP(phone_number, otp);
 
     return res
       .status(201)
@@ -124,7 +124,7 @@ router.post("/resend-otp", async (req, res) => {
       { upsert: true, new: true }
     );
 
-    sendOTP(phone_number, otp);
+    //sendOTP(phone_number, otp);
     console.log(otp);
 
     return res
@@ -192,7 +192,7 @@ router.post("/change-password", async (req, res) => {
       { upsert: true, new: true }
     );
 
-    sendOTP(phone_number, otp);
+    //sendOTP(phone_number, otp);
 
     return res
       .status(200)
@@ -453,20 +453,30 @@ router.put("/paired-driver/update-ride-status/:id", async (req, res) => {
 
     // Update the earnings array of the userType
     if (price) {
-      // Push the new earning entry to the earnings array
+      // Calculate 20% deduction
+      const deduction = price * 0.2; // 20% of the price
+
+      // Calculate the final amount after the deduction
+      const finalAmount = price - deduction;
+
+      // Push the new earning entry to the earnings array with the final amount after deduction
       user.earnings.push({
         date: new Date(),
-        amount: price, // Corrected: should be price, not user
+        amount: finalAmount, // Corrected: should be the final amount after deduction
         rideId: id, // Use the ride ID as reference
       });
 
-      // Update totalEarnings and totalBalance
-      user.totalEarnings += price; // Add the new earnings to the totalEarnings
-      user.totalBalance += price; // Add the new earnings to the balance
-    }
+      // Log earnings before saving
+      console.log("Updated earnings:", user.earnings);
 
-    // Save the updated UserType document
-    await user.save();
+      // Update totalEarnings and totalBalance with the final amount after deduction
+      user.totalEarnings += finalAmount; // Add the final earnings after deduction to totalEarnings
+      user.totalBalance += finalAmount; // Add the final earnings after deduction to balance
+
+      // Save the updated UserType document
+      await user.save();
+      console.log("UserType earnings saved successfully.");
+    }
 
     res.json({
       message: `${status} updated successfully, earnings updated.`,

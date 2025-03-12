@@ -183,7 +183,9 @@ router.post(
 
       await newDriver.save();
 
-      res.status(200).json({ message: "Driver registration successful!" });
+      res
+        .status(200)
+        .json({ message: "Driver registration successful!", success: true });
     } catch (err) {
       console.error("Error during driver registration:", err);
       res.status(500).json({ error: "Failed to register driver." });
