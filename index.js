@@ -87,42 +87,46 @@ io.on("connection", (socket) => {
   // Handling incoming messages and saving them to the database
   socket.on("send_message_ride_message", async (data) => {
     console.log("Received data:", data); // Debug the incoming data
-
+  
     const { groupId, message, sender, uuid } = data;
-
+  
     console.log(groupId, message, sender, uuid, "communication"); // Log the extracted values
-
+  
     try {
       // Find the group in the database
-      const group = await DriversMessage.findOne({ groupId: groupId });
-
-      if (group) {
-        // Add the new message to the group's message list
-        group.messages.push({
-          message: message,
-          sender: sender,
-          status: "delivered",
-          timestamp: new Date(),
-          uuid: uuid, // Save the UUID along with the message
+      let group = await DriversMessage.findOne({ groupId: groupId });
+  
+      if (!group) {
+        // If the group is not found, create a new one
+        group = new DriversMessage({
+          groupId: groupId,
+          messages: [],
         });
-
-        // Save the updated group document
-        await group.save();
-        console.log(`Message from ${sender} saved to group ${groupId}`);
-
-        // Emit the message to all users in the group
-        io.to(groupId).emit("receive_message_ride_message", {
-          sender: sender,
-          message: message,
-          uuid: uuid, // Emit the UUID back to the group
-          timestamp: new Date().toISOString(),
-          status: "delivered", // Use ISO format for consistency
-        });
-      } else {
-        console.log(
-          `Group with ID ${groupId} not found in DB, unable to save message.`
-        );
+  
+        console.log(`Created new group with ID ${groupId}`);
       }
+  
+      // Add the new message to the group's message list
+      group.messages.push({
+        message: message,
+        sender: sender,
+        status: "delivered",
+        timestamp: new Date(),
+        uuid: uuid, // Save the UUID along with the message
+      });
+  
+      // Save the updated or newly created group document
+      await group.save();
+      console.log(`Message from ${sender} saved to group ${groupId}`);
+  
+      // Emit the message to all users in the group
+      io.to(groupId).emit("receive_message_ride_message", {
+        sender: sender,
+        message: message,
+        uuid: uuid, // Emit the UUID back to the group
+        timestamp: new Date().toISOString(),
+        status: "delivered", // Use ISO format for consistency
+      });
     } catch (err) {
       console.error("Error saving message to DB:", err);
     }
